@@ -2,7 +2,7 @@
 # Authors Peter Hinch, Sebastian Plamauer
 
 # V0.6 18th June 2015
-
+# V0.7 16th Mars 2017
 '''
 The MIT License (MIT)
 Copyright (c) 2014 Sebastian Plamauer, oeplse@gmail.com, Peter Hinch
@@ -23,7 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 '''
 
-import pyb
+import time
 from math import sqrt, degrees, acos, atan2
 
 
@@ -31,7 +31,7 @@ def default_wait():
     '''
     delay of 50 ms
     '''
-    pyb.delay(50)
+    time.sleep_ms(50)
 
 
 class Vector3d(object):
