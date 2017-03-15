@@ -4,6 +4,7 @@
 # https://github.com/micropython-IMU/micropython-mpu9150.git
 # Authors Peter Hinch, Sebastian Plamauer
 # V0.1 13th June 2015 Experimental: this code is not yet fully tested
+# V0.2 16 Mars 2017 add Lopy Support
 
 '''
 mpu9250 is a micropython module for the InvenSense MPU9250 sensor.
@@ -37,7 +38,8 @@ THE SOFTWARE.
 # At runtime try to continue returning last good data value. We don't want aircraft
 # crashing. However if the I2C has crashed we're probably stuffed.
 
-import pyb
+import machine
+import time
 from vector3d import Vector3d
 
 
@@ -77,16 +79,16 @@ class InvenSenseMPU(object):
         self.buf6 = bytearray([0]*6)
         self.timeout = 10                       # I2C tieout mS
 
-        tim = pyb.millis()                      # Ensure PSU and device have settled
+        tim = time.ticks_ms()                      # Ensure PSU and device have settled
         if tim < 200:
-            pyb.delay(200-tim)
+            time.sleep_ms(200-tim)
         if type(side_str) is str:
             sst = side_str.upper()
             if sst in {'X', 'Y'}:
-                self._mpu_i2c = pyb.I2C(sst, pyb.I2C.MASTER)
+                self._mpu_i2c = machine.I2C(sst, machine.I2C.MASTER)
             else:
                 raise ValueError('I2C side must be X or Y')
-        elif type(side_str) is pyb.I2C:
+        elif type(side_str) is machine.I2C:
             self._mpu_i2c = side_str
 
         if device_addr is None:
@@ -116,14 +118,14 @@ class InvenSenseMPU(object):
         '''
         Read bytes to pre-allocated buffer Caller traps OSError.
         '''
-        self._mpu_i2c.mem_read(buf, addr, memaddr, timeout=self.timeout)
+        self._mpu_i2c.readfrom_mem_into(addr, memaddr, buf)
 
     # write to device
     def _write(self, data, memaddr, addr):
         '''
         Perform a memory write. Caller should trap OSError.
         '''
-        self._mpu_i2c.mem_write(data, addr, memaddr, timeout=self.timeout)
+        self._mpu_i2c.writeto_mem(addr, memaddr,bytes([data]))
 
     # wake
     def wake(self):
